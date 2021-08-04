@@ -27,7 +27,7 @@ namespace DuinoMiner
         static void Main(string[] args)
         {
             Stopwatch stopWatch = new Stopwatch();
-            Console.WriteLine("Kullanici adini girin");
+            Console.WriteLine("Insert your Duco username");
             string username = Console.ReadLine();
             string serverip = "server.duinocoin.com";
             int serverport = 2814;
@@ -67,7 +67,7 @@ namespace DuinoMiner
                 byte[] b = new byte[90];
                 int k = s.Receive(b);
                 string szReceived = Encoding.ASCII.GetString(b, 0, k);
-                Console.Write("Sunucudan gelen cevap:");
+                Console.Write("The answer from server:");
                 Console.WriteLine(Convert.ToString(szReceived));
 
                 if (szReceived.Length > 0)
