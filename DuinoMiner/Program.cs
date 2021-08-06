@@ -96,9 +96,9 @@ namespace DuinoMiner
                     }
                     else if (szReceived.Substring(0, 3) == "BAD")
                     {
-                        Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
-                        Console.WriteLine("Yeni iş İsteniyor");
-                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                        Console.WriteLine("Job cannot succesfully delivered");
+                        Console.WriteLine("Wanting new job");
+                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
                         s.Send(byData);
 
                     }
