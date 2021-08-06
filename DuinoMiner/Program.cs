@@ -85,55 +85,55 @@ namespace DuinoMiner
                             s.Send(byData);
 
 
-                        }
-                        else if (szReceived.Substring(0, 4) == "GOOD")
-                        {
-                            Console.WriteLine("İş Doğru Şekilde Teslim Edildi");
-                            Console.WriteLine("Yeni iş İsteniyor");
-                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
-                            s.Send(byData);
+                    }
+                    else if (szReceived.Substring(0, 4) == "GOOD")
+                    {
+                        Console.WriteLine("Job Success");
+                        Console.WriteLine("Wanting new job");
+                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                        s.Send(byData);
 
-                        }
-                        else if (szReceived.Substring(0, 3) == "BAD")
-                        {
-                            Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
-                            Console.WriteLine("Yeni iş İsteniyor");
-                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
-                            s.Send(byData);
+                    }
+                    else if (szReceived.Substring(0, 3) == "BAD")
+                    {
+                        Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
+                        Console.WriteLine("Yeni iş İsteniyor");
+                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                        s.Send(byData);
 
-                        }
-                        else
+                    }
+                    else
+                    {
+                        Console.WriteLine("Yeni İş Kabul Edildi");
+                        Console.WriteLine(szReceived);
+                        //işi parçalara ayırıp zorluğu seçiyoruz
+                        string[] is_parcalari = szReceived.Split(',');
+                        difficulty = Convert.ToInt32(is_parcalari[2]);
+                        stopWatch.Start();
+                        for (int result = 0; result < 100 * difficulty + 1; result++)
                         {
-                            Console.WriteLine("Yeni İş Kabul Edildi");
-                            Console.WriteLine(szReceived);
-                            //işi parçalara ayırıp zorluğu seçiyoruz
-                            string[] is_parcalari = szReceived.Split(',');
-                            difficulty = Convert.ToInt32(is_parcalari[2]);
-                            stopWatch.Start();
-                            for (int result = 0; result < 100 * difficulty + 1; result++)
+                            var data = Encoding.ASCII.GetBytes(is_parcalari[0] + result);
+                            var hash = new SHA1Managed().ComputeHash(data);
+                            var shash = string.Empty;
+                            foreach (var ba in hash)
                             {
-                                var data = Encoding.ASCII.GetBytes(is_parcalari[0] + result);
-                                var hash = new SHA1Managed().ComputeHash(data);
-                                var shash = string.Empty;
-                                foreach (var ba in hash)
-                                {
-                                    shash += ba.ToString("x2");
-                                }
+                                shash += ba.ToString("x2");
+                            }
 
 
-                                if (is_parcalari[1] == shash)
-                                {
-                                    Console.WriteLine("Hash Çözüldü");
-                                    stopWatch.Stop();
-                                    decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
-                                    if (zaman == 0) zaman = 0.00000000000000000001M;
-                                    var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
-                                    Console.Write("Yapılan işe ait Hash değeri");
-                                    Console.WriteLine(calchashrate);
-                                    Console.WriteLine("Cevap sunucuya gönderiliyor.");
-                                    byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
-                                    Console.WriteLine(byData);
-                                    s.Send(byData);
+                            if (is_parcalari[1] == shash)
+                            {
+                                Console.WriteLine("Hash Çözüldü");
+                                stopWatch.Stop();
+                                decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
+                                if (zaman == 0) zaman = 0.00000000000000000001M;
+                                var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
+                                Console.Write("Yapılan işe ait Hash değeri");
+                                Console.WriteLine(calchashrate);
+                                Console.WriteLine("Cevap sunucuya gönderiliyor.");
+                                byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
+                                Console.WriteLine(byData);
+                                s.Send(byData);
 
                                     break;
                                 }
@@ -145,13 +145,15 @@ namespace DuinoMiner
 
                         }
 
-                    }
-                    else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
+                }
+                else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
 
 
                 }
                 s.Close();
             }
+
+
 
 
 
