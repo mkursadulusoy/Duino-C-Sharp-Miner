@@ -84,25 +84,25 @@ namespace DuinoMiner
                     }
                     else if (szReceived.Substring(0, 4) == "GOOD")
                     {
-                        Console.WriteLine("İş Doğru Şekilde Teslim Edildi");
-                        Console.WriteLine("Yeni iş İsteniyor");
+                        Console.WriteLine("Job Success");
+                        Console.WriteLine("Wanting new job");
                         byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
                         s.Send(byData);
 
                     }
                     else if (szReceived.Substring(0, 3) == "BAD")
                     {
-                        Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
-                        Console.WriteLine("Yeni iş İsteniyor");
+                        Console.WriteLine("Job couldnt deliver successfully");
+                        Console.WriteLine("Wanting new job");
                         byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
                         s.Send(byData);
 
                     }
                     else
                     {
-                        Console.WriteLine("Yeni İş Kabul Edildi");
+                        Console.WriteLine("New job accepted");
                         Console.WriteLine(szReceived);
-                        //işi parçalara ayırıp zorluğu seçiyoruz
+                        //Spliting the job
                         string[] is_parcalari = szReceived.Split(',');
                         difficulty = Convert.ToInt32(is_parcalari[2]);
                         stopWatch.Start();
@@ -119,14 +119,14 @@ namespace DuinoMiner
 
                             if (is_parcalari[1] == shash)
                             {
-                                Console.WriteLine("Hash Çözüldü");
+                                Console.WriteLine("Hash calculated");
                                 stopWatch.Stop();
                                 decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
                                 if (zaman == 0) zaman = 0.00000000000000000001M;
                                 var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
-                                Console.Write("Yapılan işe ait Hash değeri");
+                                Console.Write("Last Hash value");
                                 Console.WriteLine(calchashrate);
-                                Console.WriteLine("Cevap sunucuya gönderiliyor.");
+                                Console.WriteLine("Answer sending to server");
                                 byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
                                 Console.WriteLine(byData);
                                 s.Send(byData);
@@ -142,7 +142,7 @@ namespace DuinoMiner
                     }
 
                 }
-                else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
+                else { Console.WriteLine("Trying to reconnect"); }
 
 
             }
@@ -153,8 +153,8 @@ namespace DuinoMiner
 
 
 
-
-            Console.WriteLine("Son");
+            // Normally software never should enter this case
+            Console.WriteLine("The End");
 
 
 
