@@ -57,97 +57,101 @@ namespace DuinoMiner
             SocketType.Stream,
             ProtocolType.Tcp);
 
-            Console.WriteLine("Establishing Connection to {0}",serverip);
-            s.Connect(serverip, serverport);
-            Console.WriteLine("Connection established");
-
 
             while (true)
             {
-                byte[] b = new byte[90];
-                int k = s.Receive(b);
-                string szReceived = Encoding.ASCII.GetString(b, 0, k);
-                Console.Write("The answer from server:");
-                Console.WriteLine(Convert.ToString(szReceived));
+                Console.WriteLine("Establishing Connection to {0}", serverip);
+                s.Connect(serverip, serverport);
+                Console.WriteLine("Connection established");
 
-                if (szReceived.Length > 0)
+
+                while (s.Connected)
                 {
-                    if (Convert.ToString(szReceived[0]) == "2")
-                    {
-                        Console.Write("Current Server Version:");
-                        Console.WriteLine(szReceived);
-                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
-                        Console.WriteLine(byData);
-                        s.Send(byData);
+                    byte[] b = new byte[90];
+                    Console.WriteLine( s.Connected);
+                    int k = s.Receive(b);
+                    string szReceived = Encoding.ASCII.GetString(b, 0, k);
+                    Console.Write("The answer from server:");
+                    Console.WriteLine(Convert.ToString(szReceived));
 
-
-                    }
-                    else if (szReceived.Substring(0, 4) == "GOOD")
+                    if (szReceived.Length > 0)
                     {
-                        Console.WriteLine("İş Doğru Şekilde Teslim Edildi");
-                        Console.WriteLine("Yeni iş İsteniyor");
-                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
-                        s.Send(byData);
-
-                    }
-                    else if (szReceived.Substring(0, 3) == "BAD")
-                    {
-                        Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
-                        Console.WriteLine("Yeni iş İsteniyor");
-                        byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
-                        s.Send(byData);
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("Yeni İş Kabul Edildi");
-                        Console.WriteLine(szReceived);
-                        //işi parçalara ayırıp zorluğu seçiyoruz
-                        string[] is_parcalari = szReceived.Split(',');
-                        difficulty = Convert.ToInt32(is_parcalari[2]);
-                        stopWatch.Start();
-                        for (int result = 0; result < 100 * difficulty + 1; result++)
+                        if (Convert.ToString(szReceived[0]) == "2")
                         {
-                            var data = Encoding.ASCII.GetBytes(is_parcalari[0] + result);
-                            var hash = new SHA1Managed().ComputeHash(data);
-                            var shash = string.Empty;
-                            foreach (var ba in hash)
+                            Console.Write("Current Server Version:");
+                            Console.WriteLine(szReceived);
+                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                            Console.WriteLine(byData);
+                            s.Send(byData);
+
+
+                        }
+                        else if (szReceived.Substring(0, 4) == "GOOD")
+                        {
+                            Console.WriteLine("İş Doğru Şekilde Teslim Edildi");
+                            Console.WriteLine("Yeni iş İsteniyor");
+                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                            s.Send(byData);
+
+                        }
+                        else if (szReceived.Substring(0, 3) == "BAD")
+                        {
+                            Console.WriteLine("İş Doğru Şekilde Teslim Edilemedi");
+                            Console.WriteLine("Yeni iş İsteniyor");
+                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                            s.Send(byData);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("Yeni İş Kabul Edildi");
+                            Console.WriteLine(szReceived);
+                            //işi parçalara ayırıp zorluğu seçiyoruz
+                            string[] is_parcalari = szReceived.Split(',');
+                            difficulty = Convert.ToInt32(is_parcalari[2]);
+                            stopWatch.Start();
+                            for (int result = 0; result < 100 * difficulty + 1; result++)
                             {
-                                shash += ba.ToString("x2");
+                                var data = Encoding.ASCII.GetBytes(is_parcalari[0] + result);
+                                var hash = new SHA1Managed().ComputeHash(data);
+                                var shash = string.Empty;
+                                foreach (var ba in hash)
+                                {
+                                    shash += ba.ToString("x2");
+                                }
+
+
+                                if (is_parcalari[1] == shash)
+                                {
+                                    Console.WriteLine("Hash Çözüldü");
+                                    stopWatch.Stop();
+                                    decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
+                                    if (zaman == 0) zaman = 0.00000000000000000001M;
+                                    var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
+                                    Console.Write("Yapılan işe ait Hash değeri");
+                                    Console.WriteLine(calchashrate);
+                                    Console.WriteLine("Cevap sunucuya gönderiliyor.");
+                                    byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
+                                    Console.WriteLine(byData);
+                                    s.Send(byData);
+
+                                    break;
+                                }
+
+
+
                             }
-
-
-                            if (is_parcalari[1] == shash)
-                            {
-                                Console.WriteLine("Hash Çözüldü");
-                                stopWatch.Stop();
-                                decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
-                                if (zaman == 0) zaman = 0.00000000000000000001M;
-                                var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
-                                Console.Write("Yapılan işe ait Hash değeri");
-                                Console.WriteLine(calchashrate);
-                                Console.WriteLine("Cevap sunucuya gönderiliyor.");
-                                byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
-                                Console.WriteLine(byData);
-                                s.Send(byData);
-
-                                break;
-                            }
-
 
 
                         }
 
-
                     }
+                    else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
+
 
                 }
-                else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
-
-
+                s.Close();
             }
-
-
 
 
 
