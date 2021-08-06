@@ -104,9 +104,9 @@ namespace DuinoMiner
                     }
                     else
                     {
-                        Console.WriteLine("Yeni İş Kabul Edildi");
+                        Console.WriteLine("new job accepted");
                         Console.WriteLine(szReceived);
-                        //işi parçalara ayırıp zorluğu seçiyoruz
+                        //splitting the job
                         string[] is_parcalari = szReceived.Split(',');
                         difficulty = Convert.ToInt32(is_parcalari[2]);
                         stopWatch.Start();
@@ -123,14 +123,14 @@ namespace DuinoMiner
 
                             if (is_parcalari[1] == shash)
                             {
-                                Console.WriteLine("Hash Çözüldü");
+                                Console.WriteLine("Hash Calculated");
                                 stopWatch.Stop();
                                 decimal zaman = stopWatch.ElapsedMilliseconds / 1000;
                                 if (zaman == 0) zaman = 0.00000000000000000001M;
                                 var calchashrate = decimal.Round((result / zaman), 2, MidpointRounding.AwayFromZero);
-                                Console.Write("Yapılan işe ait Hash değeri");
+                                Console.Write("Last Hash Value");
                                 Console.WriteLine(calchashrate);
-                                Console.WriteLine("Cevap sunucuya gönderiliyor.");
+                                Console.WriteLine("The answer sending to server");
                                 byte[] byData = System.Text.Encoding.ASCII.GetBytes(result + "," + calchashrate + ",C# Duino Miner by mkursadulusoy," + "C# Miner");
                                 Console.WriteLine(byData);
                                 s.Send(byData);
@@ -146,7 +146,8 @@ namespace DuinoMiner
                         }
 
                 }
-                else { Console.WriteLine("Düzgün cevap alınamadı. Tekrar deneniyor."); }
+                    
+                else { Console.WriteLine("Trying to reconnect"); }
 
 
                 }
@@ -159,8 +160,8 @@ namespace DuinoMiner
 
 
 
-
-            Console.WriteLine("Son");
+            //Normally program should never enter this case
+            Console.WriteLine("The End");
 
 
 
