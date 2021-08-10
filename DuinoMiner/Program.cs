@@ -48,10 +48,14 @@ namespace DuinoMiner
 
             Console.WriteLine(json);
 
+            /*
             poollar poollistesi = JsonSerializer.Deserialize<poollar>(json);
-
+            
             serverip = poollistesi.ip;
             serverport = Convert.ToInt32(poollistesi.port);
+            */
+            serverip = "51.15.127.80";
+            serverport = 2813;
 
             Socket s = new Socket(AddressFamily.InterNetwork,
             SocketType.Stream,
@@ -102,13 +106,21 @@ namespace DuinoMiner
                         s.Send(byData);
 
                     }
-                    else
+                        else if (szReceived.Substring(0, 3) == "You")
+                        {
+                            Console.WriteLine("Another difficulty tier selected");
+                            Console.WriteLine("Wanting new job");
+                            byte[] byData = System.Text.Encoding.ASCII.GetBytes("JOB," + username + ",LOW");
+                            s.Send(byData);
+
+                        }
+                        else
                     {
                         Console.WriteLine("new job accepted");
                         Console.WriteLine(szReceived);
                         //splitting the job
                         string[] is_parcalari = szReceived.Split(',');
-                        difficulty = Convert.ToInt32(is_parcalari[2]);
+                        difficulty = (int)Convert.ToInt64(is_parcalari[2]);
                         stopWatch.Start();
                         for (int result = 0; result < 100 * difficulty + 1; result++)
                         {
