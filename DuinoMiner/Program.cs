@@ -48,15 +48,15 @@ namespace DuinoMiner
 
             Console.WriteLine(json);
 
-            /*
+            
             poollar poollistesi = JsonSerializer.Deserialize<poollar>(json);
             
             serverip = poollistesi.ip;
             serverport = Convert.ToInt32(poollistesi.port);
-            */
+            /*
             serverip = "51.15.127.80";
             serverport = 2813;
-
+            */
             Socket s = new Socket(AddressFamily.InterNetwork,
             SocketType.Stream,
             ProtocolType.Tcp);
